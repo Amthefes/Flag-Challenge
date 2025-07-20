@@ -15,7 +15,7 @@ struct GameOverView: View {
     @State private var animateElements = false
     
     private var scorePercentage: Double {
-        Double(score) / 15.0
+        Double(score) / Double(self.viewModel.quationsCount)
     }
     
     private var performanceMessage: String {
@@ -232,5 +232,16 @@ struct GameOverView: View {
 }
 
 #Preview {
-    GameOverView(score: 12, viewModel: QuizViewModel())
+    GameOverView(score: 1, viewModel: QuizViewModel())
+        .background(
+            LinearGradient(
+                colors: [
+                    Color(hex: "#1A1A2E").opacity(0.95),
+                    Color(hex: "#16213E").opacity(0.9)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea(.container, edges: .top)
+        )
 }

@@ -12,7 +12,11 @@ import UIKit
 class QuizViewModel: ObservableObject {
     @Published var currentGameState: GameStatus = .notStarted
     @Published var scheduledTime: Date?
-    @Published var questions: [Question] = []
+    @Published var questions: [Question] = [] {
+        didSet {
+            self.quationsCount = questions.count
+        }
+    }
     @Published var selectedAnswer: Int?
     @Published var showResult: Bool = false
     @Published var isCorrect: Bool = false
@@ -26,6 +30,7 @@ class QuizViewModel: ObservableObject {
     private var currentQuestionIndex: Int = 0
     private var score: Int = 0
     private var timer: AnyCancellable?
+    private(set) var quationsCount: Int = 0
     
     init() {
         loadQuestions()
@@ -38,7 +43,7 @@ class QuizViewModel: ObservableObject {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
                 let quizData = try decoder.decode(QuizData.self, from: data)
-                self.questions = Array(quizData.questions.prefix(15))
+                self.questions = quizData.questions
             } catch {
                 print("Error loading questions: \(error)")
             }
@@ -64,7 +69,7 @@ class QuizViewModel: ObservableObject {
                     }
                 } else {
                     let timeSinceStart = Int(now.timeIntervalSince(scheduledTime))
-                    let totalGameTime = 15 * 30 + 14 * 10
+                    let totalGameTime = self.quationsCount * 30 + 14 * 10
                     
                     if timeSinceStart >= totalGameTime {
                         currentGameState = .finished(score: score)
@@ -88,7 +93,7 @@ class QuizViewModel: ObservableObject {
         var remainingTime = timeSinceStart
         var questionIndex = 0
         
-        while questionIndex < 15 {
+        while questionIndex < self.quationsCount {
             if remainingTime < 30 {
                 return (questionIndex, 30 - remainingTime, false)
             }
